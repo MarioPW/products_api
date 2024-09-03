@@ -37,5 +37,5 @@ def docs_layout(request: Request):
 if __name__ == "__main__":
     import uvicorn
     host = getenv('HOST', '127.0.0.1')
-    port = getenv('PORT', 8000)
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    port = int(getenv("PORT", 8000))
+    uvicorn.run(app, host="host", port=port)
