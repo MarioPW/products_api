@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía para Levantar el Proyecto en Local - FastAPI</title>
+</head>
+<body style="background-color: #252525; color: rgb(0, 211, 141);">
+    <h1>Guía para Levantar el Proyecto en Local - FastAPI</h1>
+    <p>Este proyecto utiliza FastAPI, un marco web moderno y rápido para la creación de APIs con Python. Sigue los siguientes pasos para levantar el proyecto en tu entorno local:</p>
+
+    <h2>Requisitos Previos</h2>
+    <ul>
+        <li>Python 3.7 o superior instalado en tu sistema.</li>
+        <li>Editor de código (por ejemplo, VSCode, PyCharm) para la edición y visualización del código.</li>
+    </ul>
+
+    <h2>Configuración del Entorno Virtual (opcional pero recomendado)</h2>
+    <ul>
+        <li>Abre una terminal y navega hasta el directorio del proyecto.</li>
+        <li>Crea un nuevo entorno virtual ejecutando el siguiente comando:</li>
+    </ul>
+    <pre><code>python3 -m venv env</code></pre>
+    <ul>
+        <li>Activa el entorno virtual:</li>
+    </ul>
+    <p>En Windows:</p>
+    <pre><code>env\Scripts\activate</code></pre>
+    <p>En macOS y Linux:</p>
+    <pre><code>source env/bin/activate</code></pre>
+
+    <h2>Instalación de Dependencias</h2>
+    <p>Asegúrate de que estás en el directorio del proyecto y el entorno virtual está activado.</p>
+    <p>Instala las dependencias del proyecto ejecutando el siguiente comando:</p>
+    <pre><code>pip install -r requirements.txt</code></pre>
+
+    <h2>Configuración de Variables de Entorno</h2>
+    <p>Crea un archivo <code>.env</code> en el directorio raíz del proyecto.</p>
+    <p>Define las variables de entorno necesarias en el archivo <code>.env</code>. Así:</p>
+    <pre><code># PostgreSQL example:
+DB_URL = "postgresql://user:password@localhost/products_app"</code></pre>
+    <p>Define las credenciales para la generación y decodificación de JWT tokens:</p>
+    <pre><code># JSON web token credentials
+JWT_SECRET_KEY="tuClaveSegura"
+ALGORITHM="HS256" # Se recomienda dejar éste mismo.
+ACCESS_TOKEN_EXPIRE_SEC= 1200 # Duración en segundos del token.</code></pre>
+    <p>Crea un servicio SMPT con alguna plataforma de email como gmail ó outlook.</p>
+    <p><em>Ejemplo de cómo crearla en el siguiente enlace:</em> <a href="https://www.youtube.com/watch?v=ExqdE1IzpZ0" target="_blank">https://www.youtube.com/watch?v=ExqdE1IzpZ0</a></p>
+    <p>Desde este correo se enviarán los mails de confirmación de registro en la API:</p>
+    <pre><code># Gmail SMPT service:
+EMAIL="ejemplo@gmail.com"
+EMAIL_PASSWORD="password_given_by_google"
+CHANGE_PASSWORD_ENDPIONT="http://localhost:5173/api/v1/users/reset_password_form"</code></pre>
+    <p>Ingresa las credenciales del usuario con rol de admin de la API; éste usuario podrá ingresar a las rutas protegidas de usuario con las cuales podrá realizar operaciones CRUD de los demás usuarios registrados:</p>
+    <pre><code># Web Master Credentials:
+WEB_MASTER_EMAIL="mariotriana1978@gmail.com"
+# Admin User Credentials: 
+NAME="test_name"
+ADMIN_EMAIL="mariotriana1978@gmail.com"
+PASSWORD="securepassword"</code></pre>
+
+    <h2>Allowed Origins</h2>
+    <p>Ingresa las URL de las APPs del Frontend que van a consumir la API:</p>
+    <pre><code># React app dev URL for example:
+ALLOWED_ORIGINS="http://127.0.0.1:5173/"</code></pre>
+
+    <h2>Creación de las tablas en la base de datos</h2>
+    <ul>
+        <li>Crea la base de datos <code>products_app</code> en un gestor de bases de datos relacionales; MySQL ó Postgres, por ejemplo:</li>
+    </ul>
+    <pre><code>CREATE DATABASE "products_app"</code></pre>
+    <ul>
+        <li>Luego ingresa a la carpeta <code>src/db_config</code> en el fichero <code>db_tables.py</code></li>
+        <li><img src="static/images/image-3.png" alt="Image 3"></li>
+        <li>Una vez estando allí, deberás borrar los encabezados <code>src.</code> de las rutas de importación de la conexión a la base de datos y del enum de validación <code>UsrRole</code> las cuales deben quedar así:</li>
+        <li><img src="static/images/image-4.png" alt="Image 4"></li>
+        <li>(esto se hace para que el ORM reconozca la ruta de ejecución del script y cree las tablas automáticamente en la base de datos)</li>
+        <li>Luego ejecuta el script ya sea desde la consola o dando click al botón de ejecución del editor de código. De esta manera se crearán las tablas en la base de datos y se insertarán los datos del usuario administrador y de las tablas lookup con información de los roles de los usuarios.</li>
+        <li>Por último vuelve a poner los encabezados <code>src.</code> de las rutas de importación anteriormente modificadas; deben quedar nuevamente así:</li>
+        <li><img src="static/images/image-5.png" alt="Image 5"></li>
+        <li>(esto se hace con el fin de que ahora sea el framework FastAPI el que reconozca las rutas de los modelos y esquemas de validación usados en la API)</li>
+    </ul>
+
+    <h2>Ejecución del Proyecto</h2>
+    <p>Con el entorno virtual activado y las dependencias instaladas, ejecuta el siguiente comando para iniciar el servidor:</p>
+    <pre><code>uvicorn main:app --reload</code></pre>
+    <ul>
+        <li>Abre tu navegador web y navega a la dirección <a href="http://localhost:8000" target="_blank">http://localhost:8000</a> para interactuar con la API.</li>
+    </ul>
+
+    <h2>Documentación de la API</h2>
+    <p>FastAPI genera automáticamente una documentación interactiva de la API que puedes consultar en <a href="http://localhost:8000/docs" target="_blank">http://localhost:8000/docs</a>. Al dirigirte a esta URL se verá la documentación del proyecto con el emulador de peticiones SWAGER.</p>
+    <img src="static/images/image.png" alt="API Documentation">
+
+    <h2>Login con OAuth2</h2>
+    <p>Una vez hayas ingresado a la documentación, deberás ingresar dando click al ítem <em>Authorize</em> e ingresando las credenciales con rol de administrador que proporcionaste anteriormente en las variables de entorno.</p>
+    <img src="static/images/image-1.png" alt="Authorize">
+    <img src="static/images/image-2.png" alt="Login">
+
+    <h2>Probar los endpoints de la API</h2>
+    <p>Una vez autenticado podrás probar las rutas protegidas que aparecen con un candado en la parte derecha.</p>
+
+    <h2>Diagrama de tablas de la Base de Datos</h2>
+    <img src="static/images/db_diagrams.png" alt="Database Diagrams">
+</body>
+</html>
