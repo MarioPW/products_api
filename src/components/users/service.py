@@ -13,7 +13,7 @@ from src.utils.jwt_handler import TokenHandler
 
 class UserService():
     def __init__(self, session, user_repository: UserRepository, email_handler: EmailHandler, token_handler: TokenHandler, user_role: UserRole)-> None: 
-        self.user_repository = user_repository(session)
+        self.user_repository: UserRepository = user_repository(session)
         self.email_handler = email_handler
         self.token_handler = token_handler
         self.user_role = user_role
