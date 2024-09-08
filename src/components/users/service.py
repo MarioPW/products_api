@@ -50,27 +50,27 @@ class UserService():
             raise HTTPException(status_code=400, detail=f"Something went wrong creating register model in service: {e}")
         return self.user_repository.create_user(user)
     
-    def login(self, user_data):          
-        user_db = self.user_repository.get_user_by_email(user_data.username)
-        if not user_db:
-            raise HTTPException(status_code=404, detail=f"User {user_data.username} not found")
-        if user_db.role != UserRole.admin and user_db.role != UserRole.user:
-            raise HTTPException(status_code=400, detail=f"User {user_data.username} not authorized in UserService.login()")
-        verified_password = verify_password(user_data.password, user_db.password_hash)
-        if not verified_password:
-            raise HTTPException(status_code=400, detail="Incorrect User or Password")
-        try:
-            user_data_token = {
-                "user_id": user_db.user_id,
-                "name": user_db.name,
-                "role": user_db.role
-                }
-            return {
-                    "access_token": self.token_handler.create_access_token(user_data_token),
-                    "token_type": "bearer"
-                }
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Error creating user token: {e}")
+    # def login(self, user_data):          
+    #     user_db = self.user_repository.get_user_by_email(user_data.username)
+    #     if not user_db:
+    #         raise HTTPException(status_code=404, detail=f"User {user_data.username} not found")
+    #     if user_db.role != UserRole.admin and user_db.role != UserRole.user:
+    #         raise HTTPException(status_code=400, detail=f"User {user_data.username} not authorized in UserService.login()")
+    #     verified_password = verify_password(user_data.password, user_db.password_hash)
+    #     if not verified_password:
+    #         raise HTTPException(status_code=400, detail="Incorrect User or Password")
+    #     try:
+    #         user_data_token = {
+    #             "user_id": user_db.user_id,
+    #             "name": user_db.name,
+    #             "role": user_db.role
+    #             }
+    #         return {
+    #                 "access_token": self.token_handler.create_access_token(user_data_token),
+    #                 "token_type": "bearer"
+    #             }
+    #     except Exception as e:
+    #         raise HTTPException(status_code=400, detail=f"Error creating user token: {e}")
         
     def forgot_password(self, email: EmailStr):
         user_exist = self.user_repository.get_user_by_email(email)

@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from pydantic import EmailStr
+from typing import Annotated
 
 from .service import AuthService
 from .schemas import Register, ResetPasswordReq, ConfirmationCode
@@ -18,7 +19,7 @@ auth_router = APIRouter(
     prefix="/auth",
     tags=["Auth"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 @auth_router.post("/register")
 def pre_register(data: Register):
@@ -29,17 +30,9 @@ def confirm_register(request:ConfirmationCode):
     return auth_service.confirm_register(request.code)
 
 @auth_router.post("/login")
-def login(data: OAuth2PasswordRequestForm = Depends()):
-    access_token = auth_service.login(data)
-    response = Response()
-    response.set_cookie(
-        key="access_token",
-        value=access_token["access_token"],
-        httponly=True,
-        secure=True,
-        samesite="none"
-    )
-    return response
+def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+    access_token = auth_service.login(form_data)
+    return access_token
 
 @auth_router.get("/logout")
 def logout(response: Response):

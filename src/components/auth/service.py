@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 from datetime import datetime, timedelta
 
 from src.components.users.repository import UserRepository
+from src.utils.jwt_handler import TokenHandler
 from db_config.db_tables import User, UserRole, ResetPasswordToken
 import uuid
 from src.utils.password_hash import get_password_hash, verify_password
@@ -13,7 +14,7 @@ class AuthService:
         self.auth_repository = auth_repository(session)
         self.user_repository: UserRepository = user_repository(session)
         self.email_handler = email_handler
-        self.token_handler = token_handler
+        self.token_handler: TokenHandler = token_handler
     def pre_register(self, data):
         email_handler = self.email_handler(data.email)
         email_handler.send_verification_email()
@@ -40,23 +41,25 @@ class AuthService:
             }
         return self.user_repository.update_user(user.user_id, updates)
 
-    def login(self, user_data):
-        user_db = self.user_repository.get_user_by_email(user_data.username)
+    def login(self, form_data):
+        user_db = self.user_repository.get_user_by_email(form_data.username)
         if not user_db:
-            raise HTTPException(status_code=401, detail=f"User {user_data.username} not authenticated")
+            raise HTTPException(status_code=401, detail=f"User {form_data.username} not authenticated")
         if user_db.role != UserRole.admin and user_db.role != UserRole.user:
             raise HTTPException(status_code=403, detail=f"Forbidden: Not authorized in UserService.login()")
-        verified_password = verify_password(user_data.password, user_db.password_hash)
+        verified_password = verify_password(form_data.password, user_db.password_hash)
         if not verified_password:
             raise HTTPException(status_code=400, detail="Incorrect User or Password")
         try:
             user_data_token = {
                 "user_id": user_db.user_id,
                 "name": user_db.name,
-                "email": user_db.email
+                "email": user_db.email,
+                "role": user_db.role
                 }
             return {
-                    "access_token": self.token_handler.create_access_token(user_data_token)
+                    "access_token": self.token_handler.create_access_token(user_data_token),
+                    "token_type": "bearer"
                 }
         except Exception as e:
             raise HTTPException(status_code=400, detail=f"Error creating user token: {e}")
