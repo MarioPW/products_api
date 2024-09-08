@@ -1,7 +1,4 @@
-from fastapi import APIRouter, Response, Request
-from fastapi import HTTPException
-from fastapi.responses import JSONResponse
-from fastapi import Depends
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from pydantic import EmailStr
 from typing import Annotated
@@ -35,11 +32,8 @@ def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     return access_token
 
 @auth_router.get("/logout")
-def logout(response: Response):
-    response.delete_cookie(
-        key="access_token",
-        samesite="none",
-        secure=True)
+def logout(token: Annotated[str, Depends(oauth2_scheme)]):
+    # TODO: Implement table of revoked tokens to add them to blacklist
     return {"message": "Logout successful"}
 
 @auth_router.post("/forgot_password")

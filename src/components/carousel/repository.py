@@ -9,7 +9,7 @@ class CarouselRepository:
     def __init__(self, db:Session):
         self.db = db
 
-    def get_carousel(self):
+    def get_carousel_imges(self):
         try:
             return self.db.query(CarouselImage).all()
         except Exception as e:

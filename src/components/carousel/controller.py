@@ -1,6 +1,8 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Depends
+from typing import Annotated
 
 from src.utils.roles import roles_required
+from src.components.auth.controller import oauth2_scheme
 from db_config.enums import UserRole
 from db_config.db_connection import session
 from db_config.db_tables import CarouselImage
@@ -11,18 +13,17 @@ ADMIN = UserRole.admin
 
 carousel_router = APIRouter(
     prefix="/carousel",
-    tags=["Carousel"]
+    tags=["Carousel"],
     )
 
 carousel_repo = CarouselRepository(session)
 
 @carousel_router.get("/")
-def get_carousel():
-    return carousel_repo.get_carousel()
+def get_carousel_imges():
+    return carousel_repo.get_carousel_imges()
 
 @carousel_router.get("/{image_id}")
-def get_image_by_id(request: Request, id):
-    token = request.cookies.get("access_token")
+def get_image_by_id(id, token: Annotated[str, Depends(oauth2_scheme)]):
     roles_required([ADMIN], token)
     image = carousel_repo.get_carousel_image(id)
     if not image:
@@ -30,15 +31,13 @@ def get_image_by_id(request: Request, id):
     return image
 
 @carousel_router.post("/")
-def create_image(request: Request, data: CarouselImage):
-    token = request.cookies.get("access_token")
+def create_image(data: CarouselImage, token: Annotated[str, Depends(oauth2_scheme)]):
     roles_required([ADMIN], token)
     new = data.model_dump()
     return carousel_repo.create_carousel_image(new)
 
 @carousel_router.put("/")
-def update_carousel_iamge(request: Request, data: UpdateCarouselImage):
-    token = request.cookies.get("access_token")
+def update_carousel_iamge(data: UpdateCarouselImage, token: Annotated[str, Depends(oauth2_scheme)]):
     roles_required([ADMIN], token)
     image_exst = carousel_repo.get_carousel_image(data.id)
     if not image_exst:
@@ -46,5 +45,6 @@ def update_carousel_iamge(request: Request, data: UpdateCarouselImage):
     return carousel_repo.update_carousel_image(data)
 
 @carousel_router.delete("/{image_id}")
-def delete_image(id):
+def delete_image(id, token: Annotated[str, Depends(oauth2_scheme)]):
+    roles_required([ADMIN], token)
     return carousel_repo.delete_carousel_image(id)
