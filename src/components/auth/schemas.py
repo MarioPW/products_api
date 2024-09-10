@@ -23,7 +23,6 @@ class Register(BaseModel):
 
 class ResetPasswordReq(BaseModel):
     token: UUID
-    email: EmailStr
     password1: str
     password2: str
     @model_validator(mode='after')

@@ -8,10 +8,11 @@ from src.utils.jwt_handler import TokenHandler
 from db_config.db_tables import User, UserRole, ResetPasswordToken
 import uuid
 from src.utils.password_hash import get_password_hash, verify_password
+from .repository import AuthRepository
 
 class AuthService:
     def __init__(self, session, auth_repository, user_repository, email_handler, token_handler):
-        self.auth_repository = auth_repository(session)
+        self.auth_repository: AuthRepository = auth_repository(session)
         self.user_repository: UserRepository = user_repository(session)
         self.email_handler = email_handler
         self.token_handler: TokenHandler = token_handler
