@@ -29,8 +29,7 @@ async def get_all_products():
     return all_products
 
 @products_router.get("/{product_id}")
-async def get_product_by_id(id: str, token: Annotated[str, Depends(oauth2_scheme)]):
-    roles_required([ADMIN, USER], token)
+async def get_product_by_id(id: str) -> ProductResponse:
     return products.get_product_by_id(id)
 
 @products_router.post("/")
