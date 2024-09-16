@@ -36,7 +36,15 @@ async def get_product_by_id(id: str) -> ProductResponse:
 async def create_product(data:ProductReq, token: Annotated[str, Depends(oauth2_scheme)]):
     roles_required([ADMIN], token)
     product_id = str(uuid4())
-    new_product = Product(id=product_id, name=data.name, price=data.price, stock=data.stock, brand=data.brand, description=data.description, category_name=data.category_name)
+    new_product = Product(
+        id=product_id,
+        name=data.name,
+        price=data.price,
+        stock=data.stock,
+        brand=data.brand,
+        description=data.description,
+        category_name=data.category_name,
+        size=data.size)
     products.create_product(new_product)
     for image in data.images:
         image_register = ProductImages(id=str(uuid4()), url=image, product_id=product_id)
