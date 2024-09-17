@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Float, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Float, Text, Table
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from os import getenv
@@ -6,7 +6,15 @@ from passlib.context import CryptContext
 import uuid
 
 from .db_connection import Base, engine, session
-from .enums import UserRole
+from .enums import UserRole, ProductSizes
+
+
+product_sizes_association = Table(
+    'product_sizes_association',
+    Base.metadata,
+    Column('product_id', String, ForeignKey('products.id'), primary_key=True),
+    Column('size_id', Integer, ForeignKey('product_sizes_lookup.id'), primary_key=True)
+)
 
 class User(Base):
     __tablename__ = "users"
@@ -30,11 +38,17 @@ class Product(Base):
     brand = Column(String(40), default="Dalana Kids")
     description = Column(String(250), default="Dalana Kids")
     category_name = Column(String(40), ForeignKey("categories.name"), nullable=False, default="Todos")
-    size = Column(String(100), nullable=False, default="Undefined size")
-    # customer_suggestions = Column(Text, nullable=False, default="--")
 
     category = relationship("Category", back_populates="products")
     images = relationship("ProductImages", back_populates="product", cascade="all, delete-orphan")
+    sizes = relationship("SizesLookup", secondary=product_sizes_association, back_populates="product")
+
+class SizesLookup(Base):
+    __tablename__ = "product_sizes_lookup"
+    id = Column(Integer, primary_key=True, autoincrement=True, unique=True)
+    size = Column(String, unique=True)
+
+    product = relationship("Product", secondary=product_sizes_association, back_populates="sizes")
 
 class ProductImages(Base):
     __tablename__ = "product_images"
@@ -50,7 +64,6 @@ class UserRolesLookup(Base):
     user_role = Column(String, unique=True)
 
     user = relationship("User", back_populates="user_roles_lookup")
-
 class ResetPasswordToken(Base):
     __tablename__ = 'reset_password_tokens'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -84,6 +97,10 @@ if __name__ == "__main__":
     for role in UserRole:
         new_role = UserRolesLookup(user_role=role.name)
         session.add(new_role)
+    
+    for size in ProductSizes:
+        new_size = SizesLookup(size=size.name)
+        session.add(new_size)
 
     # ----------------------------------------------------------------------------------
     #                 INSERTION OF ADMIN USER DATA INTO USERS TABLE:
