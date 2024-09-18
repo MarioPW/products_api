@@ -60,9 +60,9 @@ async def create_product(data:ProductReq, token: Annotated[str, Depends(oauth2_s
 async def update_product(id:str, updates:ProductUpdateRequest, token: Annotated[str, Depends(oauth2_scheme)]):
     roles_required([ADMIN], token)
     product = products.get_product_by_id(updates.id)
-    sizes_lookup_values = [key for key, value in ProductSizes.__members__.items() if value in updates.sizes]
+    sizes_lookup_keys = [key for key, value in ProductSizes.__members__.items() if value in updates.sizes]
 
-    sizes = products.get_lookup_sizes(sizes_lookup_values)
+    sizes = products.get_lookup_sizes(sizes_lookup_keys)
     product.sizes = sizes
     if not product:
         raise HTTPException(status_code=404, detail="Product not found.")
@@ -75,7 +75,6 @@ async def update_product(id:str, updates:ProductUpdateRequest, token: Annotated[
             products.save_product_image_url(image)
         else:
             products.update_product_image(id, image)
-
     return products.update_product(id, updates.model_dump())
 
 @products_router.delete("/{product_id}")

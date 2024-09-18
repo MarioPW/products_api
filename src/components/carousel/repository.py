@@ -1,6 +1,5 @@
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
-from uuid import uuid4
 
 from sqlalchemy.orm import Session
 from db_config.db_tables import CarouselImage
@@ -25,10 +24,9 @@ class CarouselRepository:
 
     def create_carousel_image(self, data):
         try:
-            new_image = CarouselImage(id=str(uuid4()), **data)
-            self.db.add(new_image)
+            self.db.add(data)
             self.db.commit()
-            return new_image
+            return data
         except Exception as e:
             self.db.rollback()
             raise HTTPException(status_code=500, detail=f"Error creating carousel image: {e}")

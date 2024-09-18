@@ -59,7 +59,7 @@ class ProductModel:
         try:
             product = self.db.query(Product).filter(Product.id == product_id).one()
         except Exception as e:
-            raise HTTPException(status_code=404, detail=f"PRODUCT NOT FOUND IN REPOSITORY: {e}")
+            raise HTTPException(status_code=404, detail=f"PRODUCT NOT FOUND IN REPOSITORY: {e.args[0]}")
         
         for key, value in data.items():
             if key != "images" and key != "sizes":

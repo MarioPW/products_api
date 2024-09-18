@@ -1,12 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import Annotated
+from uuid import uuid4
 
 from src.utils.roles import roles_required
 from src.components.auth.controller import oauth2_scheme
 from db_config.enums import UserRole
 from db_config.db_connection import session
 from db_config.db_tables import CarouselImage
-from src.components.carousel.schemas import CarouselImage, UpdateCarouselImage
+from src.components.carousel.schemas import CarouselReq, CarouselRes
 from .repository import CarouselRepository
 
 ADMIN = UserRole.admin
@@ -19,11 +20,11 @@ carousel_router = APIRouter(
 carousel_repo = CarouselRepository(session)
 
 @carousel_router.get("/")
-def get_carousel_imges():
+def get_carousel_imges() -> list[CarouselRes]:
     return carousel_repo.get_carousel_imges()
 
 @carousel_router.get("/{image_id}")
-def get_image_by_id(id, token: Annotated[str, Depends(oauth2_scheme)]):
+def get_image_by_id(id, token: Annotated[str, Depends(oauth2_scheme)]) -> CarouselRes:
     roles_required([ADMIN], token)
     image = carousel_repo.get_carousel_image(id)
     if not image:
@@ -31,13 +32,13 @@ def get_image_by_id(id, token: Annotated[str, Depends(oauth2_scheme)]):
     return image
 
 @carousel_router.post("/")
-def create_image(data: CarouselImage, token: Annotated[str, Depends(oauth2_scheme)]):
+def create_image(data: CarouselReq, token: Annotated[str, Depends(oauth2_scheme)]):
     roles_required([ADMIN], token)
-    new = data.model_dump()
-    return carousel_repo.create_carousel_image(new)
+    new_image = CarouselImage(id=str(uuid4()), **data.model_dump())
+    return carousel_repo.create_carousel_image(new_image)
 
 @carousel_router.put("/")
-def update_carousel_iamge(data: UpdateCarouselImage, token: Annotated[str, Depends(oauth2_scheme)]):
+def update_carousel_iamge(data: CarouselReq, token: Annotated[str, Depends(oauth2_scheme)]):
     roles_required([ADMIN], token)
     image_exst = carousel_repo.get_carousel_image(data.id)
     if not image_exst:
