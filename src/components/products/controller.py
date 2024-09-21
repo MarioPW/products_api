@@ -75,6 +75,7 @@ async def update_product(id:str, updates:ProductUpdateRequest, token: Annotated[
             products.save_product_image_url(image)
         else:
             products.update_product_image(id, image)
+
     return products.update_product(id, updates.model_dump())
 
 @products_router.delete("/{product_id}")

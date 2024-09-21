@@ -1,6 +1,7 @@
 from pydantic import BaseModel, model_validator
 
 class CarouselReq(BaseModel):
+    id: str = None
     img_url: str
     slug: str = None
 

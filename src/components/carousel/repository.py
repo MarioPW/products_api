@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 
 from sqlalchemy.orm import Session
 from db_config.db_tables import CarouselImage
+from src.components.carousel.schemas import CarouselReq
 
 class CarouselRepository:
     def __init__(self, db:Session):
@@ -31,7 +32,7 @@ class CarouselRepository:
             self.db.rollback()
             raise HTTPException(status_code=500, detail=f"Error creating carousel image: {e}")
         
-    def update_carousel_image(self, data):
+    def update_carousel_image(self, data: CarouselReq):
         try:
            self.db.query(CarouselImage).filter(CarouselImage.id==data.id).update({
                 CarouselImage.img_url: data.img_url,
