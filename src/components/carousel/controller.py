@@ -7,7 +7,7 @@ from src.components.auth.controller import oauth2_scheme
 from db_config.enums import UserRole
 from db_config.db_connection import session
 from db_config.db_tables import CarouselImage
-from src.components.carousel.schemas import CarouselReq, CarouselRes
+from src.components.carousel.schemas import CarouselReq, CarouselRes, CarouselCreateReq
 from .repository import CarouselRepository
 
 ADMIN = UserRole.admin
@@ -32,7 +32,7 @@ def get_image_by_id(id, token: Annotated[str, Depends(oauth2_scheme)]) -> Carous
     return image
 
 @carousel_router.post("/")
-def create_image(data: CarouselReq, token: Annotated[str, Depends(oauth2_scheme)]):
+def create_image(data: CarouselCreateReq, token: Annotated[str, Depends(oauth2_scheme)]):
     roles_required([ADMIN], token)
     new_image = CarouselImage(id=str(uuid4()), **data.model_dump())
     return carousel_repo.create_carousel_image(new_image)
