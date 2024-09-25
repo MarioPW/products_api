@@ -11,4 +11,5 @@ class CategoryReq(BaseModel):
             self.color = 'bg-blue-500'
         elif self.name == None or self.name == '' or self.name == ' ' or self.name == 'string':
             raise ValueError('NAME IS REQUIRED')
+        self.name = self.name.strip().lower()
         return self

@@ -60,9 +60,8 @@ async def create_product(data:ProductReq, token: Annotated[str, Depends(oauth2_s
         brand=data.brand,
         description=data.description,
         category_name=data.category_name,
+        sizes = products.get_lookup_sizes(sizes_lookup_values)
         )
-    new_product.sizes = products.get_lookup_sizes(sizes_lookup_values)
-    print(new_product)
     products.create_product(new_product)
     for image in data.images:
         image_register = ProductImages(id=str(uuid4()), url=image, product_id=product_id)
