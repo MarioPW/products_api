@@ -13,6 +13,11 @@ class ProductModel:
             return self.db.query(Product).options(joinedload(Product.sizes)).all()
         except Exception as e:
             raise HTTPException(status_code=404, detail=f"Not products found: {e}")
+    def get_products_by_category(self, category: str) -> list:
+        try:
+            return self.db.query(Product).filter(Product.category_name==category).all()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error getting product by category in repository: {e}")
     def get_product_by_name(self, name: str):
         try:
             return self.db.query(Product).filter(Product.name==name).first()

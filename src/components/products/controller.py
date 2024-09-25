@@ -23,10 +23,24 @@ products_router = APIRouter(
 )
 products = ProductModel(session)
 
+# ==================================
+#             FILTERS
+# ==================================
+
 @products_router.get("/")
 async def get_all_products() -> list[ProductResponse]:
     all_products = await products.get_all_products()
     return all_products
+
+@products_router.get("/categories/{product_category}")
+async def get_products_by_category(product_category: str) -> list[ProductResponse]:
+    return products.get_products_by_category(product_category)
+
+@products_router.get("/name/{product_name}")
+async def get_product_by_name(product_name: str) -> ProductResponse:
+    return products.get_product_by_name(product_name)
+
+# ==================================
 
 @products_router.get("/{product_id}")
 async def get_product_by_id(id: str) -> ProductResponse:
